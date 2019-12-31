@@ -14,4 +14,4 @@ KONTROLE:
 
 Projekat od prosle godine sa dodatim skyboxom
 
-![screen](https://github.com/MATF-RG17/RG058-color-runner/blob/master/Screenshots/Screenshot%20from%202018-08-15%2019-06-07.png?raw=true "latest screenshot")
+![screen](https://github.com/MATF-RG19/RG52-color-runner/blob/master/Screenshots/Capture.PNG?raw=true "latest screenshot")
