@@ -29,12 +29,12 @@ void spawn_boost(int rBoostLane){
 			glTranslatef(+wStaza/laneOffset, 0, 0);
 		}
 	
-		glTranslatef(0, 0.4, -lStaza/2);
-		glRotatef(-animation_parameter*90, 0, 1, 0);
-			//iscrtavanje objekta boost
-			boost();
-		glRotatef(animation_parameter*90, 0, 1, 0);
-		glTranslatef(0, -0.4, lStaza/2);
+		glPushMatrix();
+			glTranslatef(0, 0.4, -lStaza*boost_spawn_position/3);
+			glRotatef(-animation_parameter*90, 0, 1, 0);
+				//iscrtavanje objekta boost
+				boost();
+		glPopMatrix();
 	
 		// vracanje translacije
 		if(rBoostLane == 2){

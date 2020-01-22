@@ -20,13 +20,15 @@ int score;
 int boost_colected;
 int window_h = 800, window_w = 1200;
 
+float originalLaneCoord;
+
 void initGL(int argc, char **argv){
 	glutInit(&argc,argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
 	glutInitWindowSize(window_w, window_h);
     glutInitWindowPosition(100, 100);
-    glutCreateWindow(argv[0]);
+    glutCreateWindow("Color Runner");
 
 	glClearColor(0.0, 0.0, 0.0, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -40,21 +42,18 @@ int main(int argc, char **argv){
 	initGL(argc, argv);
 	
 	// ucitavamo teksture skybox-a
-	//texture[0] = LoadTexture("skyb/back.tga", 512, 512);
-	//texture[1] = LoadTexture("skyb/front.tga", 512, 512);
-    //texture[2] = LoadTexture("skyb/left.tga", 512, 512);
-    //texture[3] = LoadTexture("skyb/right.tga", 512, 512);
     texture[0] = LoadTexture("skyb/down.dib", 512, 512);
-    //texture[5] = LoadTexture("skyb/up.tga", 512, 512);
 	
     glutDisplayFunc(on_display);
     glutReshapeFunc(on_reshape);
     glutKeyboardFunc(on_keyboard);
     
     laneCoord = 0;
+    originalLaneCoord = laneCoord;
     lane = 1; // pocinjemo u srednjem lane-u
 	animation_parameter = 0;
 	animation_parameter2 = 0;
+	movement_parameter = 0;
     
     srand(time(NULL)); // seed za sve rand() pozive 
     listaBoja = malloc(sizeof(boje) * brStaza);
@@ -68,6 +67,7 @@ int main(int argc, char **argv){
     scoreMulti = 1;
     noObstacles = 0;
     glutTimerFunc(ballSpeed, on_timer, 0);
+    lateral_movement = 0;
        
     glutMainLoop();
     return 0;
@@ -165,8 +165,8 @@ static void on_display(void){
     gluLookAt(0.0, 1.7, -2.5,
     		  0.0, 0.0, 0.0,
     		  0.0, 1.0, 0.0);
-    //lopta		  
-    lopta();
+    //lopta
+	lopta();
     
     //skidamo prvi i dodajemo poslednji segment
     if(animation_parameter == 0){
@@ -174,6 +174,7 @@ static void on_display(void){
     }
     
     // iscrtavamo segmente i boostove
+    // animation_parameter2 animira skok, a animation_parameter pomeranje lopte
     glTranslatef(0, -sin(animation_parameter2), -animation_parameter);
 		for(i=0; i<brStaza; i++){
 		    segment(listaBoja[i].pBoja[0], listaBoja[i].pBoja[1], listaBoja[i].pBoja[2]);
@@ -232,6 +233,7 @@ void output(char *string) {
 }
 
 void on_timer(int value){
+	float movement_duration = 4.0; // duzina animacije pokreta
 
 	// timer koji kontrolise kretanje svih elemenata scene
     if(value == 0){  
@@ -239,10 +241,41 @@ void on_timer(int value){
 			animation_parameter += 0.05;
 			glutPostRedisplay();
 			glutTimerFunc(ballSpeed, on_timer, 0);
-		}		
+		}
+			
 		if (animation_parameter >= lStaza){
 			animation_parameter = 0;
 			running = 1;
+		}
+		
+		// provera da li je aktivno pomeranje
+		if (lateral_movement) {
+			float move_amount = 
+				(wStaza/laneOffset)*(ballSpeed/100.0) / 
+				movement_duration;
+			movement_parameter += move_amount;
+			
+			// ako je gotovo resetujemo
+			if (movement_parameter > wStaza/laneOffset) {
+				movement_parameter = 0;
+
+				if (lateral_movement == 1)  { // desno
+					lane += 1;
+					originalLaneCoord = laneCoord;
+				} else if (lateral_movement == 2) { // ili levo
+					lane -= 1;
+					originalLaneCoord = laneCoord;
+				}
+								
+				lateral_movement = 0;
+			// inace se malo pomeramo
+			} else if (lateral_movement == 1)  { // desno
+				laneCoord = originalLaneCoord - movement_parameter;
+				
+			} else if (lateral_movement == 2) { // ili levo
+				laneCoord = originalLaneCoord + movement_parameter;
+			}
+
 		}
 
 		/* 
@@ -251,33 +284,36 @@ void on_timer(int value){
 		*/
 		
 		// Zaokruzujemo AP na 2 decimalna mesta
-		if(roundf(animation_parameter*100)/100 == 3.75) {
+		if(roundf(animation_parameter*100)/100 == 5.75) {
+			// ako nismo pokupili boost u ovom segmentu
 			if(!running2){
+				// hit detection
 				if(	loptaR != listaBoja[1].pBoja[lane][0] 
 					|| loptaG != listaBoja[1].pBoja[lane][1] 
 					|| loptaB != listaBoja[1].pBoja[lane][2]
 				){
+					// kraj igre
 					running = 0;
 				} else {
 					/* racunamo score i ubrzavamo animacju */
 					score = score + scoreMulti;
 					noObstacles++;
-					printf("%d, %d\n", noObstacles, score);
+					//printf("%d, %d\n", noObstacles, score);
 					if(noObstacles > 4 && noObstacles%5 == 0 && ballSpeed != 1){
 						ballSpeed -= 1;
 						scoreMulti += 1;
-						printf("Speedup\n");
+						//printf("Speedup\n");
 					}
 				}	
 			} else {
 				/* racunamo score i ubrzavamo animacju */
 				score = score + scoreMulti;
 				noObstacles++;
-				printf("%d, %d\n", noObstacles, score);
+				//printf("%d, %d\n", noObstacles, score);
 				if(noObstacles > 4 && noObstacles%5 == 0 && ballSpeed != 1){
 					ballSpeed -= 1;
 					scoreMulti += 1;
-					printf("Speedup\n");
+					//printf("Speedup\n");
 				}
 			}
 		}
@@ -287,13 +323,16 @@ void on_timer(int value){
 			boost_colected = 0;
 		}
 		// detektujemo sakupljanje boosta preko pozicije
+		// ako postoji boost u ovom segmentu
 		if(boost_position[0] != -1){
-			if(animation_parameter >= 1.85 	
-			&& animation_parameter <= 2.15
-			&& lane == boost_position[0]
-			&& !boost_colected
+			// ako smo na z-duzini boosta, u ispravnom lain-u i nismo taj
+			// isti boost vec pokupili
+			if(animation_parameter >= lStaza*boost_spawn_position - rLopte	
+				&& animation_parameter <= lStaza*boost_spawn_position + rLopte	
+				&& lane == boost_position[0]
+				&& !boost_colected
 			){
-				boost_position[0] = -1; // sklanjanje sa ekrana
+				boost_position[0] = -1; // sklanjanje boosta sa ekrana
 				boost_colected = 1; // sprecava dalje detekcije u range-u
 				jump(); // f-ja za skok
 			}
@@ -317,9 +356,23 @@ void on_timer(int value){
 }
 
 void jump(){
-	// funkcija za skok, poziva novi tajmer
+	// funkcija za skok, poziva novi tajmer (1)
 	running2 = 1;
 	glutTimerFunc(ballSpeed, on_timer, 1);
+}
+
+void moveRight() {
+	if(lane != 2 && !lateral_movement) {
+		originalLaneCoord = laneCoord;
+		lateral_movement = 1;
+    }
+}
+
+void moveLeft() {
+	if(lane != 0 && !lateral_movement) {
+		originalLaneCoord = laneCoord;
+		lateral_movement = 2;
+    }
 }
 
 

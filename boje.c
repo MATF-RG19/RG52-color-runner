@@ -41,15 +41,21 @@ void pocetneBoje(){
 		for(j=0; j<3; j++){ // za svaku prepreku
 			int whileContinue = 1;
 			
+			// ako je ovo izabrana prepreka za RGB
 			if(j == rPrepreka){
+				// za i segment i j prepreku, postavljamo RGB na primarnu
+				// boju izabranu sa rRgb
 				listaBoja[i].pBoja[j][0] = bojeRgb[rRgb][0];
 				listaBoja[i].pBoja[j][1] = bojeRgb[rRgb][1];
 				listaBoja[i].pBoja[j][2] = bojeRgb[rRgb][2];
+			// inace postavljamo ne RGB boje
 			} else {
+				// ako nismo zavrsili sa odabirom boja
 				while(whileContinue){ // bira jedinstvenu boju
 					r = rand() % brBoja;
+					// ako nismo vec izabrali ovu boju
 					if(ostaloUsed[r] == 1){
-			
+						// postavljamo ostale boje prepreke iz niza boja 'ostalo'
 						listaBoja[i].pBoja[j][0] = ostalo[r][0];
 						listaBoja[i].pBoja[j][1] = ostalo[r][1];
 						listaBoja[i].pBoja[j][2] = ostalo[r][2];

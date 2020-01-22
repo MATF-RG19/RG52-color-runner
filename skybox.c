@@ -1,7 +1,7 @@
 #include <GL/glut.h>
 #include "funkcije.h"
 
-// f-ja za iscrtavanje skybox-a iz 6 delova
+// f-ja za iscrtavanje zemlje
 
 void drawSkybox(void){
 	int width = 256;

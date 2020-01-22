@@ -16,17 +16,32 @@ void lopta(){
     glMaterialfv(GL_FRONT, GL_SPECULAR, specular_ball);
     glMaterialf(GL_FRONT, GL_SHININESS, shininess_ball);
 	
-	glTranslatef(laneCoord, 0.1 + rLopte, 0);
-		glRotatef(animation_parameter*90, 1, 0, 0);
-			glutSolidSphere(rLopte, 20, 20);
-			glDisable(GL_LIGHTING);
-			glColor3f(0, 0, 0);
-			glRotatef(90.0, 0, 1, 0);
-    			glutWireSphere(rLopte, 10, 20);
-    		glRotatef(-90.0, 0, 1, 0);
-    		glEnable(GL_LIGHTING);
-		glRotatef(-animation_parameter*90, 1, 0, 0);
-	glTranslatef(-laneCoord, -(0.1 + rLopte), 0);
+	
+	float lateralZ = 0;
+	int deg = 40;
+	
+	if (lateral_movement == 1) {
+		lateralZ = -deg;
+	}
+	if (lateral_movement == 2) {
+		lateralZ = deg;
+	}
+	
+	glPushMatrix();
+		glTranslatef(laneCoord, 0.1 + rLopte, 0);
+			glRotatef(animation_parameter*90, 1, 0, 0);
+			
+				glRotatef(lateralZ, 1, 1, 0);
+				glutSolidSphere(rLopte, 20, 20);
+				glDisable(GL_LIGHTING);
+				glColor3f(0, 0, 0);
+				glPushMatrix();
+					glRotatef(90.0, 0, 1, 0);
+    					glutWireSphere(rLopte, 10, 20);
+    			glPopMatrix();
+    			glEnable(GL_LIGHTING);
+
+	glPopMatrix();
 }
 
 void boost(){
@@ -43,7 +58,7 @@ void boost(){
     glMaterialfv(GL_FRONT, GL_SPECULAR, specular_boost);
     glMaterialf(GL_FRONT, GL_SHININESS, shininess_boost);
     
-    //rotiramo 2 puta za 45 stepeni za zelenji oblik
+    //rotiramo 2 puta za 45 stepeni za zeljeni oblik
     glRotatef(45.0, 1, 0, 0);
 	glRotatef(45.0, 0, 0, 1);
 		glutSolidCube(0.2);
@@ -65,6 +80,7 @@ static void prepreka(){
 /* postavljamo geometriju segmenta staze (bez prepreka) */
 static void staza(){
     
+    // braon
     float stazaR = 0.545;
     float stazaG = 0.271;
     float stazaB = 0.075;

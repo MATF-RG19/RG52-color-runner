@@ -8,11 +8,12 @@
 static float rLopte = 0.15;
 static float wZida = 0.1;
 static float hZida = 0.5;
-static float lStaza = 4.0;
+static float lStaza = 6.0;
 static float wStaza = 2.0;
 static int brStaza = 8;
 static float laneOffset = 3.5;
 static int boost_spawn_chance = 4;
+static float boost_spawn_position = 0.75; 
 
 static int brBoja = 8; // 8 max
 extern GLfloat bojeRgb[3][3];
@@ -26,6 +27,9 @@ extern GLuint texture[];
 extern float laneCoord;
 extern int lane;
 extern int ballSpeed;
+
+int lateral_movement;
+float movement_parameter;
 
 extern int scoreMulti, noObstacles, score;;
 
@@ -52,4 +56,12 @@ extern void pocetneBoje();
 extern void shift();
 extern void on_timer(int value);
 extern void drawSkybox(void);
+
+extern void moveLeft();
+extern void moveRight();
+
+
+
+
+
 

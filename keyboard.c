@@ -1,7 +1,7 @@
 #include "funkcije.h"
 
 
-void on_keyboard(unsigned char key, int x, int y){
+void on_keyboard(unsigned char key, int x, int y) {
 
 	switch (key){
 		case 27:
@@ -15,18 +15,12 @@ void on_keyboard(unsigned char key, int x, int y){
 		
 		case 'd':
 		case 'D':
-			if(laneCoord != 0 - wStaza/laneOffset){
-				laneCoord = laneCoord - wStaza/laneOffset;
-				lane += 1;
-		    }
+			moveRight();
 		    break;
 		    
 		case 'a':
 		case 'A':
-			if(laneCoord != 0 + wStaza/laneOffset){
-				laneCoord = laneCoord + wStaza/laneOffset;
-				lane -= 1;
-		    }
+			moveLeft();
 		    break;
 		    
 		//menjamo boju lopte: 'j' - crvena,'k' - zelena, 'l' - plava 
@@ -50,6 +44,7 @@ void on_keyboard(unsigned char key, int x, int y){
 		case 'r':
 		case 'R':
 			running = 1;
+			lateral_movement = 0;
 			score = 0;
     		ballSpeed = 15;
 			laneCoord = 0;
@@ -58,6 +53,7 @@ void on_keyboard(unsigned char key, int x, int y){
     		noObstacles = 0;
 			animation_parameter = 0;
 			animation_parameter2 = 0;
+			movement_parameter = 0;
 			glutTimerFunc(ballSpeed, on_timer, 0);
 			pocetneBoje();
     		pocetni_boost();
