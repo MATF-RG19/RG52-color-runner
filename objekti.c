@@ -1,19 +1,25 @@
 #include "funkcije.h"
 
 float loptaR = 1.0, loptaG = 0.0, loptaB = 0.0;
+void drawHead();
 
 /*pravimo objekat lopte, postavljamo*/
 
 void lopta(){
 	
-	GLfloat ambient_ball[]  = {loptaR * 0.6, loptaG * 0.6, loptaB * 0.6, 1};
-	GLfloat diffuse_ball[]  = {loptaR * 0.8, loptaG * 0.8, loptaB * 0.8, 1};
-	GLfloat specular_ball[] = {loptaR * 0.9, loptaG * 0.9, loptaB * 0.9, 1};
+	GLfloat ambient_ball_head[]  = {loptaR * 0.6, loptaG * 0.6, loptaB * 0.6, 1};
+	GLfloat diffuse_ball_head[]  = {loptaR * 0.8, loptaG * 0.8, loptaB * 0.8, 1};
+	GLfloat specular_ball_head[] = {loptaR * 0.9, loptaG * 0.9, loptaB * 0.9, 1};
+	
+	GLfloat ambient_ball[]  = {0.4, 0.4, 0.4, 1};
+	GLfloat diffuse_ball[]  = {0.3 * 0.1, 0.3 * 0.1, 0.3 * 0.1, 1};
+	GLfloat specular_ball[] = {0.2, 0.2, 0.2, 1};
+
 	GLfloat shininess_ball  = 20;
 	
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_ball);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_ball);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, specular_ball);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_ball_head);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_ball_head);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specular_ball_head);
     glMaterialf(GL_FRONT, GL_SHININESS, shininess_ball);
 	
 	
@@ -27,21 +33,91 @@ void lopta(){
 		lateralZ = deg;
 	}
 	
+	// odredjujemo animaciju pokreta glave
 	glPushMatrix();
-		glTranslatef(laneCoord, 0.1 + rLopte, 0);
-			glRotatef(animation_parameter*90, 1, 0, 0);
+		glTranslatef(laneCoord, 0, 0);
+		
+		glPushMatrix();
+			// postavljamo na centar rotacije glave bude u centru lopte
+			glTranslatef(0, wZida/2 + rLopte, 0);
+			// ako je u toku animacija skretanja
+			if (lateral_movement) {
+				float headRotateDeg;
+				// brojimo korake animacije skretanja
+				int numOfSteps = wStaza/laneOffset / move_amount;
+				// trenutni korak animacije
+				int currentStepNumber = round(movement_parameter / move_amount);
+				// delimo animaciju na prvu i drugu polovinu
+				if (movement_parameter < wStaza/laneOffset/2) {
+					headRotateDeg = 120.0/numOfSteps * currentStepNumber;
+				} else {
+					headRotateDeg = 120 - 120.0/numOfSteps * currentStepNumber;
+				}
+
+				// u zavisnosti od smera animacije implementiramo postepeno skretanje
+				if (lateral_movement == 1) {
+					glRotatef(headRotateDeg, 0, 0, 1);
+				} else if (lateral_movement == 2) {
+					glRotatef(-headRotateDeg, 0, 0, 1);
+				}
+			}
 			
-				glRotatef(lateralZ, 1, 1, 0);
+			if (running2) {
+				
+				
+				if (animation_parameter2 < pi/2) {
+					jumpTranslateAmount += jumpTranslateIncrement;
+				} else {
+					jumpTranslateAmount -= jumpTranslateIncrement;
+				}
+			}
+		
+			// iscrtavamo glavu
+			glPushMatrix();
+				glTranslatef(0, jumpTranslateAmount, 0);
+				drawHead();
+			glPopMatrix();
+		glPopMatrix();
+		
+		glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_ball);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_ball);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, specular_ball);
+		glMaterialf(GL_FRONT, GL_SHININESS, shininess_ball);
+		
+		glTranslatef(0, wZida/2 + rLopte, 0);
+		
+		glPushMatrix();
+			glRotatef(animation_parameter*90, 1, 0, 0);
+			glRotatef(lateralZ, 1, 1, 0);
 				glutSolidSphere(rLopte, 20, 20);
-				glDisable(GL_LIGHTING);
-				glColor3f(0, 0, 0);
-				glPushMatrix();
-					glRotatef(90.0, 0, 1, 0);
-    					glutWireSphere(rLopte, 10, 20);
-    			glPopMatrix();
-    			glEnable(GL_LIGHTING);
+			glDisable(GL_LIGHTING);
+			glColor3f(0, 0, 0);
+			glPushMatrix();
+				glRotatef(90.0, 0, 1, 0);
+					glutWireSphere(rLopte, 10, 20);
+			glPopMatrix();
+			glEnable(GL_LIGHTING);
+		glPopMatrix();
 
 	glPopMatrix();
+}
+
+void drawHead() {
+	float rGlave = rLopte*0.75;
+	double clip_plane[] = {0, 1, 0, 0};	
+	 
+	glTranslatef(0, rLopte - 0.05, 0);
+	glClipPlane(GL_CLIP_PLANE0, clip_plane);
+	glEnable(GL_CLIP_PLANE0);
+		glRotatef(animation_parameter*40, 0, 1, 0);
+			glutSolidSphere(rGlave, 20, 20);
+		glDisable(GL_LIGHTING);
+		glColor3f(0, 0, 0);
+			glutWireSphere(rGlave, 15, 15);
+			glRotatef(90, 0, 1, 0);
+			glutWireSphere(rGlave, 15, 15);
+		glEnable(GL_LIGHTING);
+	glDisable(GL_CLIP_PLANE0);
 }
 
 void boost(){

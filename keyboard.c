@@ -65,16 +65,20 @@ void on_keyboard(unsigned char key, int x, int y) {
 		case 'P':
 			if(running){
 				running = 0;
+				
+				if(running2) {
+					running2 = 0;
+				}
 			} else {
 				running = 1;
 				glutTimerFunc(ballSpeed, on_timer, 0);
+				
+				if(animation_parameter2 != 0) {
+					running2 = 1;
+					glutTimerFunc(ballSpeed, on_timer, 1);
+				}
 			}
-			if(running2){
-				running2 = 0;
-			} else {
-				running2 = 1;
-				glutTimerFunc(ballSpeed, on_timer, 1);
-			}
+			
 			break;
 	}
 }

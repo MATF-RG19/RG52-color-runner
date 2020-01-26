@@ -68,6 +68,10 @@ int main(int argc, char **argv){
     noObstacles = 0;
     glutTimerFunc(ballSpeed, on_timer, 0);
     lateral_movement = 0;
+    
+    movement_duration = 4.0;
+    move_amount = (wStaza/laneOffset)*(ballSpeed/100.0) / 
+				movement_duration;
        
     glutMainLoop();
     return 0;
@@ -165,6 +169,7 @@ static void on_display(void){
     gluLookAt(0.0, 1.7, -2.5,
     		  0.0, 0.0, 0.0,
     		  0.0, 1.0, 0.0);
+    		  
     //lopta
 	lopta();
     
@@ -233,7 +238,6 @@ void output(char *string) {
 }
 
 void on_timer(int value){
-	float movement_duration = 4.0; // duzina animacije pokreta
 
 	// timer koji kontrolise kretanje svih elemenata scene
     if(value == 0){  
@@ -250,9 +254,6 @@ void on_timer(int value){
 		
 		// provera da li je aktivno pomeranje
 		if (lateral_movement) {
-			float move_amount = 
-				(wStaza/laneOffset)*(ballSpeed/100.0) / 
-				movement_duration;
 			movement_parameter += move_amount;
 			
 			// ako je gotovo resetujemo

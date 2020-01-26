@@ -13,7 +13,9 @@ static float wStaza = 2.0;
 static int brStaza = 8;
 static float laneOffset = 3.5;
 static int boost_spawn_chance = 4;
-static float boost_spawn_position = 0.75; 
+static float boost_spawn_position = 0.75;
+static float jumpTranslateAmount = 0;
+static float jumpTranslateIncrement = 0.005;
 
 static int brBoja = 8; // 8 max
 extern GLfloat bojeRgb[3][3];
@@ -27,9 +29,12 @@ extern GLuint texture[];
 extern float laneCoord;
 extern int lane;
 extern int ballSpeed;
+float movement_duration; // duzina animacije pokreta
 
 int lateral_movement;
 float movement_parameter;
+
+float move_amount;
 
 extern int scoreMulti, noObstacles, score;;
 
